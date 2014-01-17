@@ -26,6 +26,9 @@
 			state = 1,
 			openComment = '<!--', closeComment = '-->';
 
+		html = html.toLowerCase();
+		nodeType = nodeType.toLowerCase();
+
 		while(running) {
 			switch(state) {
 				case 1:
@@ -129,20 +132,27 @@
 			throw new Error('The html and selector parameters are required');
 		}
 
+		selector = selector.toLowerCase();
+
 		var $ = cheerio.load(html, {lowerCaseTags: false}),
+			$lower = cheerio.load(html, {lowerCaseTags: true}),
 			$matches = $(selector),
+			$matchesLower = $lower(selector),
 			results = [],
-			i, len, $match, matchHtml, location;
+			i, len, $match, $matchLower, matchHtml, matchHtmlLower, location;
 
 		for (i = 0, len = $matches.length; i < len; i += 1) {
 			$match = $matches.eq(i);
+			$matchLower = $matchesLower.eq(i);
+
 			matchHtml = $.html($match);
+			matchHtmlLower = $.html($matchLower);
 			results[i] = {
 				el: $match,
 				html: matchHtml
 			};
 			if (calculateLinesAndColumns) {
-				location = processElement($, html, $match, matchHtml);
+				location = processElement($lower, html, $matchLower, matchHtmlLower);
 				results[i].line = location[0];
 				results[i].column = location[1];
 				results[i].calculationMethod = location[2];
