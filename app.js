@@ -12,6 +12,8 @@
 
 	// Take a node type and the index of this node (e.g. this is the 5th <li> element) and return the character index of the node
 	nodeIndexToCharIndex = function(html, nodeType, n) {
+		html = html.toLowerCase();
+		nodeType = nodeType.toLowerCase();
 		var i, index = 0;
 		nodeType = '<' + nodeType;
 		for (i = 0; i <= n; i += 1) {
@@ -57,8 +59,10 @@
 		$similarElements = $(nodeType);
 		for (n = 0, len = $similarElements.length; n < len; n += 1) {
 			if ($match['0'] == $similarElements.eq(n)['0']) {
+
 				// This is the nth element of type nodeType in the document (case sensitive)
 				charIndex = nodeIndexToCharIndex(html, nodeType, n);
+
 				return charIndexToLocation(html, charIndex, 'methodB');
 			}
 		}
@@ -73,20 +77,27 @@
 			throw new Error('The html and selector parameters are required');
 		}
 
+		selector = selector.toLowerCase();
+
 		var $ = cheerio.load(html, {lowerCaseTags: false}),
+			$lower = cheerio.load(html, {lowerCaseTags: true}),
 			$matches = $(selector),
+			$matchesLower = $lower(selector),
 			results = [],
-			i, len, $match, matchHtml, location;
+			i, len, $match, $matchLower, matchHtml, matchHtmlLower, location;
 
 		for (i = 0, len = $matches.length; i < len; i += 1) {
 			$match = $matches.eq(i);
+			$matchLower = $matchesLower.eq(i);
+
 			matchHtml = $.html($match);
+			matchHtmlLower = $.html($matchLower);
 			results[i] = {
 				el: $match,
 				html: matchHtml
 			};
 			if (calculateLinesAndColumns) {
-				location = processElement($, html, $match, matchHtml);
+				location = processElement($lower, html, $matchLower, matchHtmlLower);
 				results[i].line = location[0];
 				results[i].column = location[1];
 				results[i].calculationMethod = location[2];
