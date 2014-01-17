@@ -128,4 +128,28 @@ describe('domtosource', function() {
 			assert(results.length, 10)
 		});
 	});
+
+	describe('Test ambiguous elements', function() {
+		var doc = fs.readFileSync(__dirname + '/example-html/ambiguous-elements.html', 'utf-8'),
+			results = domtosource.find(doc, 'li', true);
+
+		it('should be able to distinguish between list and li elements when calculating line numbers', function() {
+			assert.equal(results[0].line, 7);
+			assert.equal(results[1].line, 8);
+			assert.equal(results[2].line, 9);
+			assert.equal(results[3].line, 10);
+		});
+	});
+
+	describe('Test ignore elements inside comments', function() {
+		var doc = fs.readFileSync(__dirname + '/example-html/ignore-comments.html', 'utf-8'),
+			results = domtosource.find(doc, 'li', true);
+
+		it('should not match elements inside html comments when calculating line numbers', function() {
+			assert.equal(results[0].line, 12);
+			assert.equal(results[1].line, 13);
+			assert.equal(results[2].line, 14);
+			assert.equal(results[3].line, 15);
+		});
+	});
 });
